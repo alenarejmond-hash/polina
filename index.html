@@ -632,7 +632,8 @@
     <!-- ============================================== -->
     <!-- ШТОРКА "ДАВАЙТЕ ЗНАКОМИТЬСЯ" -->
     <!-- ============================================== -->
-    <div id="sheet-overlay" class="fixed md:absolute inset-0 bg-black/50 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300" onclick="closeSheet()"></div>
+    <!-- Фикс №1: ontouchmove="event.preventDefault()" убивает свайп по темному фону -->
+    <div id="sheet-overlay" class="fixed md:absolute inset-0 bg-black/50 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300" onclick="closeSheet()" ontouchmove="event.preventDefault()"></div>
     
     <div id="about-sheet" class="fixed md:absolute bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform sheet-hidden transition-transform duration-300 flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
         <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
@@ -670,7 +671,7 @@
         </div>
         <div class="overflow-y-auto px-6 pb-8 custom-scrollbar">
             <h2 class="text-2xl font-bold mb-5 tracking-tight text-white" id="ui-training-sheet-title">Обучение</h2>
-            <img id="training-photo" src="" alt="Training" class="w-full aspect-square object-cover rounded-[2rem] mb-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            <img id="training-photo" src="" alt="Training" class="w-full aspect-square object-contain bg-black/20 rounded-[2rem] mb-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
             <div id="training-text" class="text-gray-200 space-y-3 leading-relaxed text-[15px] font-medium mb-6"></div>
             <a id="training-btn" href="#" target="_blank" rel="noopener noreferrer" onclick="tg.HapticFeedback.impactOccurred('medium')" class="block w-full text-center bg-white text-black rounded-full py-4 px-6 font-bold text-[15px] shadow-[0_5px_20px_rgba(255,255,255,0.2)] active:scale-[0.98] transition-transform">
                 Записаться
@@ -887,19 +888,22 @@
             CONFIG.services.forEach((s, index) => {
                 const thumb = s.photos && s.photos.length > 0 ? s.photos[0] : s.photo;
                 servicesList.innerHTML += `
-                    <div class="card-shadow rounded-3xl p-4 flex gap-4 active:scale-[0.98] transition-transform text-left cursor-pointer" onclick="openServiceDetails(${index})">
-                        <img src="${thumb}" class="w-24 h-24 rounded-2xl object-cover shrink-0 shadow-lg border border-white/10">
-                        <div class="flex flex-col justify-between w-full">
-                            <div>
-                                <h3 class="text-white font-bold text-[15px] mb-1 leading-tight">${s.title}</h3>
-                                <p class="text-gray-300 text-[12px] line-clamp-2 leading-tight">${(s.shortDesc || '').replace(/\n/g, '<br>')}</p>
-                            </div>
-                            <div class="flex items-end justify-between mt-2">
+                    <div class="card-shadow rounded-[2rem] p-4 flex flex-col gap-4 active:scale-[0.98] transition-transform text-left cursor-pointer" onclick="openServiceDetails(${index})">
+                        <!-- Большое фото на всю ширину карточки -->
+                        <img src="${thumb}" class="w-full h-48 md:h-56 rounded-2xl object-cover shadow-lg border border-white/10">
+                        
+                        <!-- Блок с текстом и кнопками -->
+                        <div class="flex flex-col flex-grow">
+                            <h3 class="text-white font-bold text-[16px] mb-2 leading-tight">${s.title}</h3>
+                            <p class="text-gray-300 text-[12px] line-clamp-3 leading-relaxed mb-4">${(s.shortDesc || '').replace(/\n/g, '<br>')}</p>
+                            
+                            <!-- Подвал карточки: цена и кнопка (прижаты к низу) -->
+                            <div class="flex items-end justify-between mt-auto pt-4 border-t border-white/10">
                                 <div class="flex flex-col">
-                                    ${s.oldPrice ? `<span class="text-gray-400 text-[11px] line-through leading-none mb-0.5">${s.oldPrice}</span>` : ''}
-                                    <span class="text-white font-bold text-[15px] leading-none drop-shadow-md">${s.newPrice}</span>
+                                    ${s.oldPrice ? `<span class="text-gray-400 text-[11px] line-through leading-none mb-1">${s.oldPrice}</span>` : ''}
+                                    <span class="text-white font-black text-[18px] leading-none drop-shadow-md">${s.newPrice}</span>
                                 </div>
-                                <div class="text-[11px] font-bold text-white bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm flex items-center gap-1">
+                                <div class="text-[12px] font-bold text-white bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full shadow-lg flex items-center gap-1">
                                     ${CONFIG.ui.moreBtn} <i class="ph-bold ph-caret-right"></i>
                                 </div>
                             </div>
@@ -989,31 +993,47 @@
 
         // --- ЛОГИКА ФОРМЫ ОТЗЫВОВ ---
         let currentRating = 0;
+        let globalScrollPos = 0; // Сохраняем позицию скролла
 
         // Блокировка и разблокировка скролла главного экрана
         function lockScroll() {
+            globalScrollPos = window.scrollY || window.pageYOffset;
+            
+            // Фикс №2: 100% железобетонный блок для iOS/Android: фиксируем сам body
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${globalScrollPos}px`;
+            document.body.style.width = '100%';
+            
             document.body.style.overflow = 'hidden';
             document.documentElement.style.overflow = 'hidden';
-            document.body.style.overscrollBehavior = 'none'; // Фикс для Safari: жестко отключаем "резинку" у всей страницы
+            document.body.style.overscrollBehavior = 'none'; 
             
             const scrollContainer = document.getElementById('app-scroll-container');
             if (scrollContainer) {
                 scrollContainer.style.overflow = 'hidden';
-                scrollContainer.style.touchAction = 'none'; // Полностью отключаем жесты на главном экране
-                scrollContainer.style.pointerEvents = 'none'; // Железобетонный запрет любых кликов и свайпов
+                scrollContainer.style.touchAction = 'none'; 
+                scrollContainer.style.pointerEvents = 'none'; 
             }
         }
         
         function unlockScroll() {
+            // Возвращаем body в исходное состояние
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            
             document.body.style.overflow = '';
             document.documentElement.style.overflow = '';
-            document.body.style.overscrollBehavior = ''; // Возвращаем обычное поведение
+            document.body.style.overscrollBehavior = ''; 
+            
+            // Восстанавливаем прокрутку, чтобы экран не прыгал наверх
+            window.scrollTo(0, globalScrollPos);
             
             const scrollContainer = document.getElementById('app-scroll-container');
             if (scrollContainer) {
                 scrollContainer.style.overflow = '';
-                scrollContainer.style.touchAction = ''; // Возвращаем жесты
-                scrollContainer.style.pointerEvents = ''; // Возвращаем кликабельность
+                scrollContainer.style.touchAction = ''; 
+                scrollContainer.style.pointerEvents = ''; 
             }
         }
 
@@ -1321,9 +1341,9 @@
             const aspectClass = containerId === 'service-gallery-container' ? 'aspect-video' : 'aspect-square';
             
             let html = `
-            <div class="relative w-full ${aspectClass} rounded-[2rem] overflow-hidden mb-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            <div class="relative w-full ${aspectClass} rounded-[2rem] overflow-hidden mb-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)] bg-black/20">
                 <div class="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar h-full w-full" id="${containerId}-scroll" onscroll="updateGalleryDots('${containerId}')">
-                    ${photos.map(p => `<img src="${p}" class="w-full h-full object-cover shrink-0 snap-center">`).join('')}
+                    ${photos.map(p => `<img src="${p}" class="w-full h-full object-contain shrink-0 snap-center">`).join('')}
                 </div>
                 ${photos.length > 1 ? `
                 <div class="absolute bottom-4 left-0 w-full flex flex-wrap justify-center gap-2 z-10 px-4" id="${containerId}-dots">
@@ -1566,7 +1586,8 @@
                 }, {passive: true});
                 handle.addEventListener('touchmove', (e) => {
                     touchCurrentY = e.touches[0].clientY;
-                }, {passive: true});
+                    e.preventDefault(); // Фикс №3: Полностью блокируем сдвиг экрана при свайпе за полосочку
+                }, {passive: false}); // Обязательно false для работы preventDefault
                 handle.addEventListener('touchend', (e) => {
                     if (touchCurrentY > touchStartY + 40) { // Если потянули вниз больше чем на 40px
                         closeSheet();
