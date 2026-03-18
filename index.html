@@ -974,6 +974,8 @@
         function lockScroll() {
             document.body.style.overflow = 'hidden';
             document.documentElement.style.overflow = 'hidden';
+            document.body.style.overscrollBehavior = 'none'; // Фикс для Safari: жестко отключаем "резинку" у всей страницы
+            
             const scrollContainer = document.getElementById('app-scroll-container');
             if (scrollContainer) {
                 scrollContainer.style.overflow = 'hidden';
@@ -985,6 +987,8 @@
         function unlockScroll() {
             document.body.style.overflow = '';
             document.documentElement.style.overflow = '';
+            document.body.style.overscrollBehavior = ''; // Возвращаем обычное поведение
+            
             const scrollContainer = document.getElementById('app-scroll-container');
             if (scrollContainer) {
                 scrollContainer.style.overflow = '';
