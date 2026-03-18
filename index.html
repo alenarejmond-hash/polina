@@ -129,10 +129,25 @@
            Убираем "дыру" снизу и запрещаем скролл фона
            ======================================================= */
         div[id$="-sheet"]:not(#sheet-overlay) {
-            height: calc(80vh + 150px) !important; /* Строго 80vh видимой части + 150px запас снизу */
             bottom: -150px !important; /* Уводим запасной фон под экран */
             padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px)) !important;
             transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        /* 3. Большие шторки (Обо мне, Обучение, Услуги) - 80% */
+        #about-sheet, #training-sheet, #service-details-sheet {
+            height: calc(80vh + 150px) !important;
+        }
+
+        /* 2. Шторка Рубрик (Огненные, Танцы, Лагерь) - 50% */
+        #posts-sheet {
+            height: calc(50vh + 150px) !important;
+        }
+
+        /* 1. Компактные шторки (Отзывы, Предсказания) - по размеру контента */
+        #fortune-sheet, #review-sheet {
+            height: auto !important;
+            max-height: calc(85vh + 150px) !important;
         }
 
         #sheet-overlay {
@@ -143,6 +158,11 @@
         /* Скрываем шторки за пределами экрана */
         .sheet-hidden {
             transform: translateY(100%) !important; /* Смещаем вниз на 100%. Запас в 150px надежно скроет все тени */
+        }
+
+        /* 4. ЖЕЛЕЗОБЕТОННАЯ БЛОКИРОВКА СДВИГА ФОНА ПРИ СКРОЛЛЕ ШТОРКИ */
+        .custom-scrollbar {
+            overscroll-behavior: contain !important; /* Запрещает передавать скролл от шторки к главному экрану */
         }
     </style>
 </head>
