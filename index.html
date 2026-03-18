@@ -129,19 +129,31 @@
            Убираем "дыру" снизу и запрещаем скролл фона
            ======================================================= */
         div[id$="-sheet"]:not(#sheet-overlay) {
-            bottom: -100px !important; /* Опускаем якорь ниже экрана */
-            padding-bottom: 100px !important; /* Удлиняем фон, чтобы перекрыть опускание */
-            max-height: calc(90vh + 100px) !important; /* Компенсируем высоту контента */
+            bottom: 0 !important;
+            padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 20px) !important;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), max-height 0.4s ease-out !important;
         }
         
+        div[id$="-sheet"]:not(#sheet-overlay)::after {
+            content: '';
+            position: absolute;
+            top: 99%;
+            left: 0;
+            right: 0;
+            height: 50vh;
+            background: inherit;
+            border-radius: inherit;
+            pointer-events: none;
+        }
+
         #sheet-overlay {
             touch-action: none; /* Жесткий запрет скролла/свайпа через затемненный фон */
             -webkit-touch-callout: none;
         }
 
-        /* Скрываем шторки за пределами экрана с учетом новых 100px */
+        /* Скрываем шторки за пределами экрана */
         .sheet-hidden {
-            transform: translateY(calc(100% + 50px)) !important;
+            transform: translateY(100%) !important;
         }
     </style>
 </head>
@@ -613,11 +625,11 @@
     <!-- ============================================== -->
     <div id="sheet-overlay" class="fixed md:absolute inset-0 bg-black/50 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300" onclick="closeSheet()"></div>
     
-    <div id="about-sheet" class="fixed md:absolute bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform sheet-hidden transition-transform duration-300 flex flex-col max-h-[90vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+    <div id="about-sheet" class="fixed md:absolute bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform sheet-hidden transition-transform duration-300 flex flex-col max-h-[60vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
         <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
             <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
         </div>
-        <div class="overflow-y-auto px-6 pb-12 custom-scrollbar">
+        <div class="overflow-y-auto px-6 pb-12 custom-scrollbar" onscroll="expandSheet(this)" ontouchmove="expandSheet(this)">
             <h2 class="text-2xl font-bold mb-5 tracking-tight text-white" id="ui-about-sheet-title">Обо мне</h2>
             <!-- Галерея вместо статичного фото -->
             <div id="about-gallery-container"></div>
@@ -628,11 +640,11 @@
     <!-- ============================================== -->
     <!-- ШТОРКА "ПОСТЫ РУБРИКИ" -->
     <!-- ============================================== -->
-    <div id="posts-sheet" class="fixed md:absolute bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform sheet-hidden transition-transform duration-300 flex flex-col max-h-[90vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+    <div id="posts-sheet" class="fixed md:absolute bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform sheet-hidden transition-transform duration-300 flex flex-col max-h-[60vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
         <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
             <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
         </div>
-        <div class="overflow-y-auto px-6 pb-12 custom-scrollbar">
+        <div class="overflow-y-auto px-6 pb-12 custom-scrollbar" onscroll="expandSheet(this)" ontouchmove="expandSheet(this)">
             <h2 id="posts-sheet-title" class="text-2xl font-bold mb-5 tracking-tight text-white text-center"></h2>
             <div id="posts-sheet-list" class="space-y-3">
                 <!-- Ссылки на посты -->
@@ -643,11 +655,11 @@
     <!-- ============================================== -->
     <!-- ШТОРКА "ОБУЧЕНИЕ" -->
     <!-- ============================================== -->
-    <div id="training-sheet" class="fixed md:absolute bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform sheet-hidden transition-transform duration-300 flex flex-col max-h-[90vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+    <div id="training-sheet" class="fixed md:absolute bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform sheet-hidden transition-transform duration-300 flex flex-col max-h-[60vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
         <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
             <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
         </div>
-        <div class="overflow-y-auto px-6 pb-8 custom-scrollbar">
+        <div class="overflow-y-auto px-6 pb-8 custom-scrollbar" onscroll="expandSheet(this)" ontouchmove="expandSheet(this)">
             <h2 class="text-2xl font-bold mb-5 tracking-tight text-white" id="ui-training-sheet-title">Обучение</h2>
             <img id="training-photo" src="" alt="Training" class="w-full aspect-square object-cover rounded-[2rem] mb-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
             <div id="training-text" class="text-gray-200 space-y-3 leading-relaxed text-[15px] font-medium mb-6"></div>
@@ -660,11 +672,11 @@
     <!-- ============================================== -->
     <!-- ШТОРКА "ОПИСАНИЕ УСЛУГИ" -->
     <!-- ============================================== -->
-    <div id="service-details-sheet" class="fixed md:absolute bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform sheet-hidden transition-transform duration-300 flex flex-col max-h-[90vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+    <div id="service-details-sheet" class="fixed md:absolute bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform sheet-hidden transition-transform duration-300 flex flex-col max-h-[60vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
         <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
             <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
         </div>
-        <div class="overflow-y-auto px-6 pb-8 custom-scrollbar">
+        <div class="overflow-y-auto px-6 pb-8 custom-scrollbar" onscroll="expandSheet(this)" ontouchmove="expandSheet(this)">
             <h2 id="service-sheet-title" class="text-2xl font-bold mb-5 tracking-tight text-white leading-tight"></h2>
             <!-- Галерея вместо статичного фото -->
             <div id="service-gallery-container"></div>
@@ -685,11 +697,11 @@
     <!-- ============================================== -->
     <!-- ШТОРКА "ПРЕДСКАЗАНИЕ НА ДЕНЬ" -->
     <!-- ============================================== -->
-    <div id="fortune-sheet" class="fixed md:absolute bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform sheet-hidden transition-transform duration-300 flex flex-col max-h-[90vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+    <div id="fortune-sheet" class="fixed md:absolute bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform sheet-hidden transition-transform duration-300 flex flex-col max-h-[60vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
         <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
             <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
         </div>
-        <div class="overflow-y-auto px-6 pb-12 custom-scrollbar text-center">
+        <div class="overflow-y-auto px-6 pb-12 custom-scrollbar text-center" onscroll="expandSheet(this)" ontouchmove="expandSheet(this)">
             <div class="w-20 h-20 mx-auto rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-4xl mb-4 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
                 🔮
             </div>
@@ -701,11 +713,11 @@
     <!-- ============================================== -->
     <!-- ШТОРКА "НАПИСАТЬ ОТЗЫВ" (Модальное окно) -->
     <!-- ============================================== -->
-    <div id="review-sheet" class="fixed md:absolute bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform sheet-hidden transition-transform duration-300 flex flex-col max-h-[90vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+    <div id="review-sheet" class="fixed md:absolute bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform sheet-hidden transition-transform duration-300 flex flex-col max-h-[60vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
         <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
             <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
         </div>
-        <div class="overflow-y-auto px-6 pb-12 custom-scrollbar text-center">
+        <div class="overflow-y-auto px-6 pb-12 custom-scrollbar text-center" onscroll="expandSheet(this)" ontouchmove="expandSheet(this)">
             <h2 class="text-2xl font-bold mb-6 tracking-tight text-white" id="ui-review-sheet-title">Оставить отзыв</h2>
             
             <!-- Интерактивные звезды -->
@@ -968,6 +980,31 @@
 
         // --- ЛОГИКА ФОРМЫ ОТЗЫВОВ ---
         let currentRating = 0;
+
+        // Блокировка и разблокировка скролла главного экрана
+        function lockScroll() {
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+            const scrollContainer = document.getElementById('app-scroll-container');
+            if (scrollContainer) scrollContainer.style.overflow = 'hidden';
+        }
+        
+        function unlockScroll() {
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+            const scrollContainer = document.getElementById('app-scroll-container');
+            if (scrollContainer) scrollContainer.style.overflow = '';
+        }
+        
+        // Функция расширения шторки при скролле
+        function expandSheet(element) {
+            const sheet = element.closest('div[id$="-sheet"]');
+            if (sheet && sheet.classList.contains('max-h-[60vh]')) {
+                sheet.classList.remove('max-h-[60vh]');
+                sheet.classList.add('max-h-[90vh]');
+            }
+        }
+
         function setRating(stars) {
             currentRating = stars;
             tg.HapticFeedback.impactOccurred('light');
@@ -985,7 +1022,7 @@
 
         function openReviewSheet() {
             tg.HapticFeedback.impactOccurred('medium');
-            document.body.style.overflow = 'hidden'; 
+            lockScroll(); 
             
             // Сброс формы перед открытием
             setRating(0);
@@ -1042,7 +1079,7 @@
         // Открытие шторки Предсказания
         function openFortuneSheet() {
             tg.HapticFeedback.impactOccurred('medium');
-            document.body.style.overflow = 'hidden'; 
+            lockScroll(); 
 
             const randomIndex = Math.floor(Math.random() * CONFIG.fortunes.length);
             const fortune = CONFIG.fortunes[randomIndex];
@@ -1086,7 +1123,7 @@
         // Открытие шторки с конкретной услугой
         function openServiceDetails(index) {
             tg.HapticFeedback.impactOccurred('light');
-            document.body.style.overflow = 'hidden';
+            lockScroll();
 
             const service = CONFIG.services[index];
             document.getElementById('service-sheet-title').textContent = service.title;
@@ -1136,7 +1173,7 @@
         // Открытие шторки Обучения
         function openTrainingSheet() {
             tg.HapticFeedback.impactOccurred('light');
-            document.body.style.overflow = 'hidden'; 
+            lockScroll(); 
 
             document.getElementById('training-photo').src = CONFIG.training.photo;
             document.getElementById('training-text').innerHTML = (CONFIG.training.text || '').replace(/\n/g, '<br>');
@@ -1162,10 +1199,10 @@
         // Открытие шторки с постами
         function openPostsSheet(index) {
             tg.HapticFeedback.impactOccurred('light');
-            document.body.style.overflow = 'hidden'; 
+            lockScroll(); 
             
             const category = CONFIG.categories[index];
-            document.getElementById('posts-sheet-title').textContent = category.title;
+            document.getElementById('posts-sheet-title').innerHTML = category.title;
             
             const list = document.getElementById('posts-sheet-list');
             list.innerHTML = '';
@@ -1191,7 +1228,7 @@
         // Открытие шторки "Обо мне"
         function openSheet() {
             tg.HapticFeedback.impactOccurred('light');
-            document.body.style.overflow = 'hidden'; 
+            lockScroll(); 
             const sheet = document.getElementById('about-sheet');
             const overlay = document.getElementById('sheet-overlay');
             
@@ -1204,7 +1241,7 @@
 
         // Универсальное закрытие любой шторки
         function closeSheet() {
-            document.body.style.overflow = ''; 
+            unlockScroll(); 
             const aboutSheet = document.getElementById('about-sheet');
             const postsSheet = document.getElementById('posts-sheet');
             const trainingSheet = document.getElementById('training-sheet');
@@ -1223,6 +1260,11 @@
             
             setTimeout(() => {
                 overlay.classList.add('hidden');
+                // Возвращаем высоту 60% после закрытия
+                document.querySelectorAll('div[id$="-sheet"]').forEach(sheet => {
+                    sheet.classList.remove('max-h-[90vh]');
+                    sheet.classList.add('max-h-[60vh]');
+                });
             }, 300);
         }
 
@@ -1517,6 +1559,10 @@
                 }, {passive: true});
                 handle.addEventListener('touchmove', (e) => {
                     touchCurrentY = e.touches[0].clientY;
+                    // Если свайп ВВЕРХ (Y уменьшается), расширяем шторку
+                    if (touchCurrentY < touchStartY - 20) {
+                        expandSheet(handle);
+                    }
                 }, {passive: true});
                 handle.addEventListener('touchend', (e) => {
                     if (touchCurrentY > touchStartY + 40) { // Если потянули вниз больше чем на 40px
