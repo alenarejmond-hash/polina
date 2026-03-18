@@ -129,26 +129,18 @@
            Убираем "дыру" снизу и запрещаем скролл фона
            ======================================================= */
         div[id$="-sheet"]:not(#sheet-overlay) {
+            box-sizing: content-box !important;
             bottom: 0 !important;
-            padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 20px) !important;
+            margin-bottom: -50vh !important;
+            padding-bottom: calc(50vh + env(safe-area-inset-bottom, 0px) + 20px) !important;
+            overscroll-behavior-y: none; /* Блокируем резинку на самой шторке */
             transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), max-height 0.4s ease-out !important;
-        }
-        
-        div[id$="-sheet"]:not(#sheet-overlay)::after {
-            content: '';
-            position: absolute;
-            top: 99%;
-            left: 0;
-            right: 0;
-            height: 50vh;
-            background: inherit;
-            border-radius: inherit;
-            pointer-events: none;
         }
 
         #sheet-overlay {
             touch-action: none; /* Жесткий запрет скролла/свайпа через затемненный фон */
             -webkit-touch-callout: none;
+            overscroll-behavior: none;
         }
 
         /* Скрываем шторки за пределами экрана */
@@ -989,6 +981,7 @@
             if (scrollContainer) {
                 scrollContainer.style.overflow = 'hidden';
                 scrollContainer.style.touchAction = 'none'; // Полностью отключаем жесты на главном экране
+                scrollContainer.style.pointerEvents = 'none'; // Железобетонная блокировка любых взаимодействий с фоном
             }
         }
         
@@ -999,6 +992,7 @@
             if (scrollContainer) {
                 scrollContainer.style.overflow = '';
                 scrollContainer.style.touchAction = ''; // Возвращаем жесты
+                scrollContainer.style.pointerEvents = ''; // Возвращаем взаимодействия
             }
         }
         
