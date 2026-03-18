@@ -639,6 +639,7 @@
         <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
             <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
         </div>
+        <button onclick="closeSheet()" class="absolute top-4 right-6 text-white/30 hover:text-white/80 p-2 z-10 active:scale-95 transition-all"><i class="ph-bold ph-x text-[20px]"></i></button>
         <div class="overflow-y-auto px-6 pb-12 custom-scrollbar">
             <h2 class="text-2xl font-bold mb-5 tracking-tight text-white" id="ui-about-sheet-title">Обо мне</h2>
             <!-- Галерея вместо статичного фото -->
@@ -654,6 +655,7 @@
         <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
             <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
         </div>
+        <button onclick="closeSheet()" class="absolute top-4 right-6 text-white/30 hover:text-white/80 p-2 z-10 active:scale-95 transition-all"><i class="ph-bold ph-x text-[20px]"></i></button>
         <div class="overflow-y-auto px-6 pb-12 custom-scrollbar">
             <h2 id="posts-sheet-title" class="text-2xl font-bold mb-5 tracking-tight text-white text-center"></h2>
             <div id="posts-sheet-list" class="space-y-3">
@@ -724,6 +726,7 @@
         <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
             <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
         </div>
+        <button onclick="closeSheet()" class="absolute top-4 right-6 text-white/30 hover:text-white/80 p-2 z-10 active:scale-95 transition-all"><i class="ph-bold ph-x text-[20px]"></i></button>
         <div class="overflow-y-auto px-6 pb-12 custom-scrollbar text-center">
             <div class="w-20 h-20 mx-auto rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-4xl mb-4 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
                 🔮
@@ -740,6 +743,7 @@
         <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
             <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
         </div>
+        <button onclick="closeSheet()" class="absolute top-4 right-6 text-white/30 hover:text-white/80 p-2 z-10 active:scale-95 transition-all"><i class="ph-bold ph-x text-[20px]"></i></button>
         <div class="overflow-y-auto px-6 pb-12 custom-scrollbar text-center">
             <h2 class="text-2xl font-bold mb-6 tracking-tight text-white" id="ui-review-sheet-title">Оставить отзыв</h2>
             
@@ -1357,7 +1361,7 @@
             let html = `
             <div class="relative w-full ${aspectClass} rounded-[2rem] overflow-hidden mb-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)] bg-black/20">
                 <div class="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar h-full w-full" id="${containerId}-scroll" onscroll="updateGalleryDots('${containerId}')">
-                    ${photos.map(p => `<img src="${p}" class="w-full h-full object-contain shrink-0 snap-center">`).join('')}
+                    ${photos.map(p => `<img src="${p}" class="w-full h-full object-cover shrink-0 snap-center">`).join('')}
                 </div>
                 ${photos.length > 1 ? `
                 <div class="absolute bottom-4 left-0 w-full flex flex-wrap justify-center gap-2 z-10 px-4" id="${containerId}-dots">
