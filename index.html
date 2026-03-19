@@ -1359,14 +1359,30 @@
             }, 10);
         };
 
-        window.closeBlurGuide = function() {
-            tg.HapticFeedback.impactOccurred('light');
+        window.closeBlurGuide = function(silent = false) {
             const blurGuide = document.getElementById('blur-guide-overlay');
+            if (blurGuide.classList.contains('hidden')) return; // Защита от лишних срабатываний
+
+            // Вибрируем только если пользователь закрыл крестиком вручную
+            if (silent !== true) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
+            
             blurGuide.classList.add('opacity-0');
             setTimeout(() => {
                 blurGuide.classList.add('hidden');
             }, 300);
         };
+
+        // АВТОМАТИЧЕСКОЕ ЗАКРЫТИЕ ПОДСКАЗКИ ПРИ ВОЗВРАТЕ В МИНИ-АПП
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                closeBlurGuide(true);
+            }
+        });
+        window.addEventListener('focus', () => {
+            closeBlurGuide(true);
+        });
 
         // --- НОВЫЕ ФУНКЦИИ (ТОСТЫ, ГАЛЕРЕЯ, ПОДЕЛИТЬСЯ) ---
         
