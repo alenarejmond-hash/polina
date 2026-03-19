@@ -1149,7 +1149,7 @@
 
         // Обработчик клика по ссылкам на посты для правильного сворачивания Mini App
         function handlePostClick(event, rawUrl) {
-            event.preventDefault(); // Останавливаем стандартный переход
+            if(event) event.preventDefault(); // Останавливаем стандартный переход
             tg.HapticFeedback.impactOccurred('light');
             
             let url = String(rawUrl).trim();
@@ -1157,17 +1157,22 @@
             // Обязательно форматируем ссылку, иначе Телеграм не сможет свернуть апп!
             if (url.startsWith('@')) {
                 url = 'https://t.me/' + url.substring(1);
-            } else if (url.includes('t.me') && !url.startsWith('http')) {
+            } else if ((url.includes('t.me') || url.includes('telegram.me')) && !url.startsWith('http')) {
                 url = 'https://' + url;
             }
 
-            if (url.includes('t.me')) {
-                // Если это ссылка на Telegram, открываем её нативно (приложение свернется в трей)
-                tg.openTelegramLink(url);
-            } else {
-                // Если это внешняя ссылка, открываем во внешнем браузере
-                tg.openLink(url);
-            }
+            // КРИТИЧЕСКИЙ ФИКС: Задержка 150мс. На устройствах Apple (iOS) 
+            // мгновенный вызов часто блокируется. Задержка позволяет Телеграму 
+            // корректно перехватить команду и свернуть апп в нижний трей!
+            setTimeout(() => {
+                if (url.includes('t.me') || url.includes('telegram.me')) {
+                    // Если это ссылка на Telegram, открываем её нативно
+                    tg.openTelegramLink(url);
+                } else {
+                    // Если это внешняя ссылка, открываем во внешнем браузере
+                    tg.openLink(url);
+                }
+            }, 150);
         }
 
         // Открытие страницы Услуг
@@ -1221,15 +1226,20 @@
             }
             
             const btn = document.getElementById('service-sheet-btn');
-            btn.href = servLink;
+            btn.href = "javascript:void(0);"; // Убираем атрибут ссылки, чтобы не ломать Телеграм
             
             // Надежное открытие ссылки внутри Telegram API
             btn.onclick = function(e) {
+                if(e) e.preventDefault();
                 tg.HapticFeedback.impactOccurred('medium');
-                if (servLink.includes('t.me')) {
-                    e.preventDefault();
-                    tg.openTelegramLink(servLink);
-                }
+                
+                setTimeout(() => {
+                    if (servLink.includes('t.me') || servLink.includes('telegram.me')) {
+                        tg.openTelegramLink(servLink);
+                    } else {
+                        tg.openLink(servLink);
+                    }
+                }, 150);
             };
 
             const sheet = document.getElementById('service-details-sheet');
@@ -1256,7 +1266,22 @@
             if (trainLink.includes('t.me')) {
                 trainLink += (trainLink.includes('?') ? '&' : '?') + 'text=' + encodeURIComponent(msg);
             }
-            document.getElementById('training-btn').href = trainLink;
+            
+            const trainBtn = document.getElementById('training-btn');
+            trainBtn.href = "javascript:void(0);"; // Убираем атрибут ссылки
+            
+            trainBtn.onclick = function(e) {
+                if(e) e.preventDefault();
+                tg.HapticFeedback.impactOccurred('medium');
+                
+                setTimeout(() => {
+                    if (trainLink.includes('t.me') || trainLink.includes('telegram.me')) {
+                        tg.openTelegramLink(trainLink);
+                    } else {
+                        tg.openLink(trainLink);
+                    }
+                }, 150);
+            };
 
             const sheet = document.getElementById('training-sheet');
             const overlay = document.getElementById('sheet-overlay');
@@ -1280,7 +1305,7 @@
             list.innerHTML = '';
             category.posts.forEach(post => {
                 list.innerHTML += `
-                    <a href="#" onclick="handlePostClick(event, '${post.link}')" class="block p-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 transition-colors flex items-center justify-between active:scale-[0.98]">
+                    <a href="javascript:void(0);" onclick="handlePostClick(event, '${post.link}')" class="block p-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 transition-colors flex items-center justify-between active:scale-[0.98]">
                         <span class="text-[14px] font-bold text-white text-left">${post.title}</span>
                         <i class="ph-bold ph-caret-right text-gray-300"></i>
                     </a>
