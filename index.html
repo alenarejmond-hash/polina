@@ -682,7 +682,7 @@
 
         <!-- Настоящая парящая кнопка ВНИЗУ (Абсолютное позиционирование поверх текста) -->
         <div class="absolute left-0 w-full px-6 z-20 pointer-events-none" style="bottom: calc(150px + env(safe-area-inset-bottom, 0px) + 32px);">
-            <a id="training-btn" href="#" target="_blank" rel="noopener noreferrer" onclick="tg.HapticFeedback.impactOccurred('medium')" class="block w-full text-center bg-white text-black rounded-full py-4 px-6 font-bold text-[15px] shadow-[0_10px_40px_rgba(0,0,0,0.5)] active:scale-[0.98] transition-transform pointer-events-auto">
+            <a id="training-btn" href="#" target="_blank" rel="noopener noreferrer" onclick="tg.HapticFeedback.impactOccurred('medium'); closeSheet();" class="block w-full text-center bg-white text-black rounded-full py-4 px-6 font-bold text-[15px] shadow-[0_10px_40px_rgba(0,0,0,0.5)] active:scale-[0.98] transition-transform pointer-events-auto">
                 Записаться
             </a>
         </div>
@@ -713,7 +713,7 @@
         
         <!-- Настоящая парящая кнопка ВНИЗУ (Абсолютное позиционирование поверх текста) -->
         <div class="absolute left-0 w-full px-6 z-20 pointer-events-none" style="bottom: calc(150px + env(safe-area-inset-bottom, 0px) + 32px);">
-            <a id="service-sheet-btn" href="#" target="_blank" rel="noopener noreferrer" onclick="tg.HapticFeedback.impactOccurred('medium')" class="block w-full text-center bg-white text-black rounded-full py-4 px-6 font-bold text-[15px] shadow-[0_10px_40px_rgba(0,0,0,0.5)] active:scale-[0.98] transition-transform pointer-events-auto">
+            <a id="service-sheet-btn" href="#" target="_blank" rel="noopener noreferrer" onclick="tg.HapticFeedback.impactOccurred('medium'); closeSheet();" class="block w-full text-center bg-white text-black rounded-full py-4 px-6 font-bold text-[15px] shadow-[0_10px_40px_rgba(0,0,0,0.5)] active:scale-[0.98] transition-transform pointer-events-auto">
                 Записаться
             </a>
         </div>
@@ -1200,13 +1200,10 @@
             const btn = document.getElementById('service-sheet-btn');
             btn.href = servLink;
             
-            // Надежное открытие ссылки внутри Telegram API
-            btn.onclick = function(e) {
+            // Надежное открытие ссылки внутри Telegram
+            btn.onclick = function() {
                 tg.HapticFeedback.impactOccurred('medium');
-                if (servLink.includes('t.me')) {
-                    e.preventDefault();
-                    tg.openTelegramLink(servLink);
-                }
+                closeSheet();
             };
 
             const sheet = document.getElementById('service-details-sheet');
@@ -1257,7 +1254,7 @@
             list.innerHTML = '';
             category.posts.forEach(post => {
                 list.innerHTML += `
-                    <a href="${post.link}" onclick="event.preventDefault(); tg.HapticFeedback.impactOccurred('light'); this.href.includes('t.me') ? tg.openTelegramLink(this.href) : tg.openLink(this.href); closeSheet();" class="block p-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 transition-colors flex items-center justify-between active:scale-[0.98]">
+                    <a href="${post.link}" target="_blank" onclick="tg.HapticFeedback.impactOccurred('light'); closeSheet();" class="block p-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 transition-colors flex items-center justify-between active:scale-[0.98]">
                         <span class="text-[14px] font-bold text-white text-left">${post.title}</span>
                         <i class="ph-bold ph-caret-right text-gray-300"></i>
                     </a>
