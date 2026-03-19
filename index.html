@@ -766,19 +766,6 @@
         </div>
     </div>
 
-    <!-- ============================================== -->
-    <!-- ШТОРКА "ПРОСМОТР ПОСТА" (Встроенный пост) -->
-    <!-- ============================================== -->
-    <div id="post-embed-sheet" class="fixed md:absolute bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-[60] transform sheet-hidden transition-transform duration-300 flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.4)]" style="height: calc(85vh + 150px) !important;">
-        <div class="w-full flex justify-center py-4 shrink-0 drag-handle" onclick="closeEmbedSheet()">
-            <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
-        </div>
-        <button onclick="closeEmbedSheet()" class="absolute top-4 right-6 text-white/30 hover:text-white/80 p-2 z-10 active:scale-95 transition-all"><i class="ph-bold ph-x text-[20px]"></i></button>
-        <div class="overflow-y-auto px-4 pb-40 custom-scrollbar flex-1 min-h-0 w-full" id="post-embed-container">
-            <!-- Сюда динамически подгрузится iframe с постом -->
-        </div>
-    </div>
-
         </div> <!-- Конец MOBILE APP CONTAINER -->
 
         <!-- ============================================== -->
@@ -1270,7 +1257,7 @@
             list.innerHTML = '';
             category.posts.forEach(post => {
                 list.innerHTML += `
-                    <a href="javascript:void(0);" onclick="handlePostClick(event, '${post.link}')" class="block p-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 transition-colors flex items-center justify-between active:scale-[0.98]">
+                    <a href="${post.link}" onclick="event.preventDefault(); tg.HapticFeedback.impactOccurred('light'); this.href.includes('t.me') ? tg.openTelegramLink(this.href) : tg.openLink(this.href);" class="block p-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 transition-colors flex items-center justify-between active:scale-[0.98]">
                         <span class="text-[14px] font-bold text-white text-left">${post.title}</span>
                         <i class="ph-bold ph-caret-right text-gray-300"></i>
                     </a>
@@ -1310,7 +1297,6 @@
             const serviceDetailsSheet = document.getElementById('service-details-sheet');
             const fortuneSheet = document.getElementById('fortune-sheet');
             const reviewSheet = document.getElementById('review-sheet');
-            const postEmbedSheet = document.getElementById('post-embed-sheet');
             const overlay = document.getElementById('sheet-overlay');
             
             overlay.classList.add('opacity-0');
@@ -1320,93 +1306,9 @@
             serviceDetailsSheet.classList.add('sheet-hidden');
             fortuneSheet.classList.add('sheet-hidden');
             reviewSheet.classList.add('sheet-hidden');
-            if (postEmbedSheet) {
-                postEmbedSheet.classList.add('sheet-hidden');
-                setTimeout(() => { document.getElementById('post-embed-container').innerHTML = ''; }, 300);
-            }
             
             setTimeout(() => {
                 overlay.classList.add('hidden');
-            }, 300);
-        }
-
-        // --- ЛОГИКА ВСТРОЕННЫХ ПОСТОВ ---
-
-        function handlePostClick(event, rawUrl) {
-            if(event) event.preventDefault(); // Останавливаем стандартный переход
-            tg.HapticFeedback.impactOccurred('light');
-            
-            let url = String(rawUrl).trim();
-            
-            // Форматируем ссылку
-            if (url.startsWith('@')) {
-                url = 'https://t.me/' + url.substring(1);
-            } else if ((url.includes('t.me') || url.includes('telegram.me')) && !url.startsWith('http')) {
-                url = 'https://' + url;
-            }
-
-            // ПРОВЕРКА НА ПОСТ: Если это ссылка на конкретный пост (содержит ID в конце)
-            const parts = url.replace('https://', '').replace('http://', '').split('/');
-            const isTelegramPost = parts.length >= 3 && parts[2].trim() !== '';
-            
-            // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Приватные каналы (содержат /c/) Телеграм физически блокирует для встраивания!
-            const isPrivateChannel = url.includes('/c/'); 
-
-            if (isTelegramPost && !isPrivateChannel && (url.includes('t.me') || url.includes('telegram.me'))) {
-                // ВАРИАНТ 1: Открываем прямо внутри визитки (iframe)
-                let embedUrl = url;
-                if (embedUrl.includes('?')) embedUrl = embedUrl.split('?')[0]; // чистим параметры
-                if (embedUrl.endsWith('/')) embedUrl = embedUrl.slice(0, -1); // убираем слеш на конце
-                embedUrl += '?embed=1&dark=1'; // добавляем параметр встраивания и темную тему
-                
-                // СУПЕР-ФИКС ДЛЯ ТЕЛЕФОНОВ (Особенно iOS/iPhone):
-                // 1. Жестко задаем высоту, чтобы встроенный браузер не сжимал окно до 0 пикселей.
-                // 2. Добавляем "спасательную кнопку" на случай, если в самом канале стоит защита 
-                // от копирования (которая блокирует iframe на стороне серверов Telegram).
-                document.getElementById('post-embed-container').innerHTML = `
-                    <div class="flex flex-col items-center w-full gap-4 pb-6">
-                        <div class="relative w-full rounded-2xl overflow-hidden bg-black/40 border border-white/10" style="height: 60vh; min-height: 400px;">
-                            <!-- Анимация загрузки -->
-                            <div class="absolute inset-0 flex flex-col items-center justify-center text-white/40 gap-3 z-0 p-4 text-center">
-                                <i class="ph-bold ph-spinner animate-spin text-4xl text-orange-400"></i>
-                                <span class="text-[13px] font-medium">Загружаем пост...<br><br><span class="opacity-70">Если он не появился, значит в канале стоит защита от копирования. Нажмите кнопку ниже 👇</span></span>
-                            </div>
-                            
-                            <!-- Скроллируемый контейнер для iOS (чтобы не было пустой дыры) -->
-                            <div style="position: absolute; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; z-index: 10;">
-                                <iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" scrolling="auto" allowfullscreen style="width: 100%; min-height: 100%; border: none; background: transparent;"></iframe>
-                            </div>
-                        </div>
-                        
-                        <!-- СПАСАТЕЛЬНАЯ КНОПКА (Всегда спасет конверсию!) -->
-                        <button onclick="tg.openTelegramLink('${url}')" class="w-full bg-white text-black rounded-full py-4 px-6 font-bold text-[15px] shadow-[0_10px_30px_rgba(255,255,255,0.2)] active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
-                            <i class="ph-bold ph-telegram-logo text-xl text-[#0088cc]"></i>
-                            Открыть пост в Telegram
-                        </button>
-                    </div>
-                `;
-                
-                const embedSheet = document.getElementById('post-embed-sheet');
-                embedSheet.classList.remove('sheet-hidden');
-            } else {
-                // Запасной вариант для внешних ссылок, каналов или ПРИВАТНЫХ постов
-                setTimeout(() => {
-                    if (url.includes('t.me') || url.includes('telegram.me')) {
-                        tg.openTelegramLink(url);
-                    } else {
-                        tg.openLink(url);
-                    }
-                }, 150);
-            }
-        }
-
-        function closeEmbedSheet() {
-            tg.HapticFeedback.impactOccurred('light');
-            const embedSheet = document.getElementById('post-embed-sheet');
-            embedSheet.classList.add('sheet-hidden');
-            // Очищаем iframe после анимации закрытия
-            setTimeout(() => {
-                document.getElementById('post-embed-container').innerHTML = '';
             }, 300);
         }
 
