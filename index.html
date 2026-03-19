@@ -1257,7 +1257,7 @@
             list.innerHTML = '';
             category.posts.forEach(post => {
                 list.innerHTML += `
-                    <a href="${post.link}" onclick="event.preventDefault(); tg.HapticFeedback.impactOccurred('light'); this.href.includes('t.me') ? tg.openTelegramLink(this.href) : tg.openLink(this.href); setTimeout(() => tg.close(), 50);" class="block p-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 transition-colors flex items-center justify-between active:scale-[0.98]">
+                    <a href="${post.link}" onclick="event.preventDefault(); tg.HapticFeedback.impactOccurred('light'); this.href.includes('t.me') ? tg.openTelegramLink(this.href) : tg.openLink(this.href); closeSheet();" class="block p-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 transition-colors flex items-center justify-between active:scale-[0.98]">
                         <span class="text-[14px] font-bold text-white text-left">${post.title}</span>
                         <i class="ph-bold ph-caret-right text-gray-300"></i>
                     </a>
