@@ -1359,10 +1359,30 @@
                 if (embedUrl.endsWith('/')) embedUrl = embedUrl.slice(0, -1); // убираем слеш на конце
                 embedUrl += '?embed=1&dark=1'; // добавляем параметр встраивания и темную тему
                 
-                // ФИКС ДЛЯ iOS: Обертка с жестко заданной высотой, чтобы iframe 100% не схлопнулся
+                // СУПЕР-ФИКС ДЛЯ ТЕЛЕФОНОВ (Особенно iOS/iPhone):
+                // 1. Жестко задаем высоту, чтобы встроенный браузер не сжимал окно до 0 пикселей.
+                // 2. Добавляем "спасательную кнопку" на случай, если в самом канале стоит защита 
+                // от копирования (которая блокирует iframe на стороне серверов Telegram).
                 document.getElementById('post-embed-container').innerHTML = `
-                    <div style="position: relative; width: 100%; height: 100%; min-height: 75vh;">
-                        <iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" scrolling="auto" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:none; overflow:hidden; border-radius: 1rem; background: transparent;"></iframe>
+                    <div class="flex flex-col items-center w-full gap-4 pb-6">
+                        <div class="relative w-full rounded-2xl overflow-hidden bg-black/40 border border-white/10" style="height: 60vh; min-height: 400px;">
+                            <!-- Анимация загрузки -->
+                            <div class="absolute inset-0 flex flex-col items-center justify-center text-white/40 gap-3 z-0 p-4 text-center">
+                                <i class="ph-bold ph-spinner animate-spin text-4xl text-orange-400"></i>
+                                <span class="text-[13px] font-medium">Загружаем пост...<br><br><span class="opacity-70">Если он не появился, значит в канале стоит защита от копирования. Нажмите кнопку ниже 👇</span></span>
+                            </div>
+                            
+                            <!-- Скроллируемый контейнер для iOS (чтобы не было пустой дыры) -->
+                            <div style="position: absolute; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; z-index: 10;">
+                                <iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" scrolling="auto" allowfullscreen style="width: 100%; min-height: 100%; border: none; background: transparent;"></iframe>
+                            </div>
+                        </div>
+                        
+                        <!-- СПАСАТЕЛЬНАЯ КНОПКА (Всегда спасет конверсию!) -->
+                        <button onclick="tg.openTelegramLink('${url}')" class="w-full bg-white text-black rounded-full py-4 px-6 font-bold text-[15px] shadow-[0_10px_30px_rgba(255,255,255,0.2)] active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+                            <i class="ph-bold ph-telegram-logo text-xl text-[#0088cc]"></i>
+                            Открыть пост в Telegram
+                        </button>
                     </div>
                 `;
                 
