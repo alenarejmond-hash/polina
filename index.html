@@ -1200,7 +1200,7 @@
             const btn = document.getElementById('service-sheet-btn');
             btn.href = servLink;
             
-            // Надежное открытие ссылки внутри Telegram API и автоматическое закрытие визитки
+            // Надежное открытие ссылки внутри Telegram API и автоматическое закрытие ТОЛЬКО шторки
             btn.onclick = function(e) {
                 e.preventDefault();
                 tg.HapticFeedback.impactOccurred('medium');
@@ -1209,7 +1209,7 @@
                 } else {
                     tg.openLink(servLink);
                 }
-                tg.close(); // Сворачиваем мини-апп!
+                closeSheet(); // Сворачиваем внутреннюю шторку, не выкидывая из приложения
             };
 
             const sheet = document.getElementById('service-details-sheet');
@@ -1240,7 +1240,7 @@
             const trainBtn = document.getElementById('training-btn');
             trainBtn.href = trainLink;
             
-            // Надежное открытие ссылки внутри Telegram API и автоматическое закрытие визитки
+            // Надежное открытие ссылки внутри Telegram API и автоматическое закрытие ТОЛЬКО шторки
             trainBtn.onclick = function(e) {
                 e.preventDefault();
                 tg.HapticFeedback.impactOccurred('medium');
@@ -1249,7 +1249,7 @@
                 } else {
                     tg.openLink(trainLink);
                 }
-                tg.close(); // Сворачиваем мини-апп!
+                closeSheet(); // Сворачиваем внутреннюю шторку, не выкидывая из приложения
             };
 
             const sheet = document.getElementById('training-sheet');
@@ -1274,10 +1274,10 @@
             list.innerHTML = '';
             category.posts.forEach(post => {
                 const isTgLink = post.link.includes('t.me');
-                // Добавили tg.close(); в конце скрипта клика
+                // Заменили tg.close() на closeSheet()
                 const onClickScript = isTgLink 
-                    ? `event.preventDefault(); tg.HapticFeedback.impactOccurred('light'); tg.openTelegramLink('${post.link}'); tg.close();` 
-                    : `event.preventDefault(); tg.HapticFeedback.impactOccurred('light'); tg.openLink('${post.link}'); tg.close();`;
+                    ? `event.preventDefault(); tg.HapticFeedback.impactOccurred('light'); tg.openTelegramLink('${post.link}'); closeSheet();` 
+                    : `event.preventDefault(); tg.HapticFeedback.impactOccurred('light'); tg.openLink('${post.link}'); closeSheet();`;
 
                 list.innerHTML += `
                     <a href="${post.link}" onclick="${onClickScript}" class="block p-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 transition-colors flex items-center justify-between active:scale-[0.98]">
