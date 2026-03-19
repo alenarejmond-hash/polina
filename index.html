@@ -1348,21 +1348,28 @@
             // ПРОВЕРКА НА ПОСТ: Если это ссылка на конкретный пост (содержит ID в конце)
             const parts = url.replace('https://', '').replace('http://', '').split('/');
             const isTelegramPost = parts.length >= 3 && parts[2].trim() !== '';
+            
+            // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Приватные каналы (содержат /c/) Телеграм физически блокирует для встраивания!
+            const isPrivateChannel = url.includes('/c/'); 
 
-            if (isTelegramPost && (url.includes('t.me') || url.includes('telegram.me'))) {
+            if (isTelegramPost && !isPrivateChannel && (url.includes('t.me') || url.includes('telegram.me'))) {
                 // ВАРИАНТ 1: Открываем прямо внутри визитки (iframe)
                 let embedUrl = url;
                 if (embedUrl.includes('?')) embedUrl = embedUrl.split('?')[0]; // чистим параметры
+                if (embedUrl.endsWith('/')) embedUrl = embedUrl.slice(0, -1); // убираем слеш на конце
                 embedUrl += '?embed=1&dark=1'; // добавляем параметр встраивания и темную тему
                 
+                // ФИКС ДЛЯ iOS: Обертка с жестко заданной высотой, чтобы iframe 100% не схлопнулся
                 document.getElementById('post-embed-container').innerHTML = `
-                    <iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" scrolling="auto" style="border:none; overflow:hidden; min-height: 70vh; border-radius: 1rem; background: transparent;"></iframe>
+                    <div style="position: relative; width: 100%; height: 100%; min-height: 75vh;">
+                        <iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" scrolling="auto" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:none; overflow:hidden; border-radius: 1rem; background: transparent;"></iframe>
+                    </div>
                 `;
                 
                 const embedSheet = document.getElementById('post-embed-sheet');
                 embedSheet.classList.remove('sheet-hidden');
             } else {
-                // Запасной вариант для внешних ссылок или ссылок просто на канал
+                // Запасной вариант для внешних ссылок, каналов или ПРИВАТНЫХ постов
                 setTimeout(() => {
                     if (url.includes('t.me') || url.includes('telegram.me')) {
                         tg.openTelegramLink(url);
