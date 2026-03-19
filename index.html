@@ -1345,6 +1345,7 @@
             const serviceDetailsSheet = document.getElementById('service-details-sheet');
             const fortuneSheet = document.getElementById('fortune-sheet');
             const reviewSheet = document.getElementById('review-sheet');
+            const postEmbedSheet = document.getElementById('post-embed-sheet');
             const overlay = document.getElementById('sheet-overlay');
             
             overlay.classList.add('opacity-0');
@@ -1354,6 +1355,10 @@
             serviceDetailsSheet.classList.add('sheet-hidden');
             fortuneSheet.classList.add('sheet-hidden');
             reviewSheet.classList.add('sheet-hidden');
+            if (postEmbedSheet) {
+                postEmbedSheet.classList.add('sheet-hidden');
+                setTimeout(() => { document.getElementById('post-embed-container').innerHTML = ''; }, 300);
+            }
             
             setTimeout(() => {
                 overlay.classList.add('hidden');
